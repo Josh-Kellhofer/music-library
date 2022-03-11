@@ -5,11 +5,6 @@ from .serializers import SongsSerializer
 from .models import Songs
 
 
-
-
-
-
-
 @api_view(['GET', 'POST'])
 def songs_list(request):
 
@@ -35,4 +30,18 @@ def songs_list(request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
    
     
+@api_view(['GET'])
+# pk (primary key) goes to views, path with int to ensure it is an integer since this is the id and id's are always integers. 
+def song_detail(request, pk):
+  try:
+    # Querying songs table to get specific song
+    song = Songs.objects.get(pk=pk)
+    serializer = SongsSerializer(song);
+    return Response(serializer.data)
+    # Validating data
+  except Songs.DoesNotExist:
+    return Response(status=status.HTTP_404_NOT_FOUND);
+
+ 
+
 
