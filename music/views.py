@@ -31,7 +31,7 @@ def songs_list(request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
    
     
-@api_view(['GET', 'PUT'])
+@api_view(['GET', 'PUT', 'DELETE'])
 # pk (primary key) goes to views, path with int to ensure it is an integer since this is the id and id's are always integers. 
 def song_detail(request, pk):
   # Querying songs table to get specific song utilizing the imported shortcut (line 1 above)
@@ -48,6 +48,10 @@ def song_detail(request, pk):
       # If valid, telling it to save the PUT data
       serializer.save()
       return Response(serializer.data)
+    # Separating DELETE from GET & PUT requests
+    elif request.method == 'DELETE':
+      song.delete()
+      return Response(status=status.HTTP_204_NO_CONTENT)
       
  
 
