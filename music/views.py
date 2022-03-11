@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
@@ -30,17 +31,25 @@ def songs_list(request):
     return Response(serializer.data, status=status.HTTP_201_CREATED)
    
     
-@api_view(['GET'])
+@api_view(['GET', 'PUT'])
 # pk (primary key) goes to views, path with int to ensure it is an integer since this is the id and id's are always integers. 
 def song_detail(request, pk):
-  try:
-    # Querying songs table to get specific song
-    song = Songs.objects.get(pk=pk)
-    serializer = SongsSerializer(song);
-    return Response(serializer.data)
-    # Validating data
-  except Songs.DoesNotExist:
-    return Response(status=status.HTTP_404_NOT_FOUND);
+  # Querying songs table to get specific song utilizing the imported shortcut (line 1 above)
+    song = get_object_or_404(Songs, pk=pk)
+    # Separating GET and PUT requests.
+    if request.method == 'GET':
+      serializer = SongsSerializer(song);
+      return Response(serializer.data)
+    elif request.method == 'PUT':
+      # song is current version of the object; data=request.data compares it to current version
+      serializer = SongsSerializer(song, data=request.data)
+      # Validation
+      serializer.is_valid(raise_exception=True)
+      # If valid, telling it to save the PUT data
+      serializer.save()
+      return Response(serializer.data)
+      
+ 
 
  
 
